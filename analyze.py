@@ -7,9 +7,8 @@ import json
 import os
 from spellchecker import SpellChecker
 
-
 def create_report(df,type,enviro):
-
+    
     today = date.today()
     now = datetime.now()
     
@@ -27,32 +26,7 @@ def create_report(df,type,enviro):
     file = f'{path}/{file_name}'   
     df.to_csv(file, index=False, header=True)
 
-# def pull_missing_info(data):
-    
-    # status_legend = pd.read_csv("legend.csv")
-
-    # data_w_status = pd.merge(data, status_legend, how='outer', on='date')
-    # incorrect_status_df = data_w_status.loc[(data_w_status['status'] != data_w_status['correct_status'])]
-    # incorrect_status_df.dropna(inplace=True)
-    # incorrect_status_df['error_status'] = 'incorrect status'
-    # print(incorrect_status_df.head(5))
-    
-    # return incorrect_status_df
-
-
-# def pull_incorrect_status(data):
-    
-    # today = date.today()
-    
-    # status_legend = pd.read_csv("legend.csv")
-
-    # data_w_status = pd.merge(data, status_legend, how='outer', on='date')
-    # incorrect_status_df = data_w_status.loc[(data_w_status['status'] != data_w_status['correct_status'])]
-    # incorrect_status_df.dropna(inplace=True)
-    # incorrect_status_df['error_status'] = 'incorrect status'
-    # print(incorrect_status_df.head(5))
-    
-    # return incorrect_status_df
+######### DEFS ###########
 
 def current_quarter():
     
@@ -72,9 +46,7 @@ def current_quarter():
 def fix_hyphen_dates(x, x_tup):
     xx = tuple(x_tup[1].split(" "))[1]
     new_x = (str(x[0])+" "+str(xx))
-    print("x_tup:" + x_tup[1])
     new_input = (str(new_x), str(x_tup[1]))
-    print(new_input)
     comp_q = convert_date(new_input)
     
     return comp_q
@@ -97,17 +69,13 @@ def convert_date_to_numberscale(x, cur_year, cur_month):
 
 def convert_date(x_tup):
    
-    print("***********")
-    print(x_tup)
     cur_year = date.today().year
     cur_month = date.today().month
     
     comp_q = float(0.0)
     
     x = tuple(x_tup[0].split(" "))
-    
-    print(x)
-    
+        
     if x[0] == 'none':
         return "Missing date"
     
@@ -130,8 +98,6 @@ def convert_date(x_tup):
         return comp_q
 
     elif len(x) == 1:
-        print(x)
-        
         if 'Q' in x[0]:
         
             comp_q = fix_hyphen_dates(x, x_tup)
@@ -147,16 +113,10 @@ def convert_date(x_tup):
         else:
             comp_q = "date issue"  
         
-        print(comp_q)
         return comp_q
     
-    
-    
-
-    
 def compare_date(date):
-    # print(type(date))
-    # print(date)
+
     date_comp = tuple(date.split(' - '))
 
     card_num_scale = convert_date(date_comp)
@@ -174,82 +134,21 @@ def compare_date(date):
     elif diff >= .50:
         return "Future"
 
-    # return type(this_q)
+######### WIP ############
 
+# def pull_missing_info(data):
+    
+#     status_legend = pd.read_csv("legend.csv")
 
-def pull_incorrect_status(data):
+#     data_w_status = pd.merge(data, status_legend, how='outer', on='date')
+#     incorrect_status_df = data_w_status.loc[(data_w_status['status'] != data_w_status['correct_status'])]
+#     incorrect_status_df.dropna(inplace=True)
+#     incorrect_status_df['error_status'] = 'incorrect status'
+#     print(incorrect_status_df.head(5))
     
-    cur_year = date.today().year
-    cur_month = date.today().month
+#     return incorrect_status_df
     
-    cur_year = 2022
-    cur_month = 12
-    
-    current_q = current_quarter()
-    status_check = data
-        
-    # status_check.apply(lambda x:compare_date(x) for x in status_check['date'])
-    
-    status_check['year_check'] = list(
-    map(lambda x: compare_date(x), status_check['date']))
-    
-    status_check['status_issue'] = np.where(status_check['year_check'] != status_check['status'], "incorrect status", "")
-    
-    """
-    get todays quarter
-    for each card
-        compare if cards year is past, same, or future year
-            if past: status = release
-            if future
-            if same or future: continue
-        
-        compare if card quarter
-    """
-    
-    print(status_check[['param','date','status', 'year_check', 'status_issue']].head(30))
-
-def pull_learn_more(data):
-    
-    data['links'] = data['links'].astype(str)
-    contains_learn_more = data.loc[data['links'].str.contains('Learn more')]
-    contains_learn_more['error_learn'] = 'change learn more'
-    
-    return contains_learn_more
-
-def pull_arrow_error(data):
-    
-    data['links'] = data['links'].astype(str)
-    needs_arrow = data.loc[data['links'].str.contains('missing arrow')]
-    needs_arrow['error_arrow'] = 'missing arrow'
-    print (needs_arrow)
-    
-    return needs_arrow
-
-def check_fullstop(data):
-    
-    needs_fullstop = data
-    needs_fullstop['full_stop'] = list(
-    map( lambda x: x.endswith('.'), data['description']))
-    needs_fullstop = data.loc[data['full_stop'] == False]
-    needs_fullstop['missing_fullstop'] = np.where(needs_fullstop['full_stop'] == False, "missing fullstop", "")
-    needs_fullstop.drop(['full_stop'], axis=1, inplace=True)
-    
-    print(needs_fullstop)
-    
-    return needs_fullstop
-
-def check_uppercase(data):
-    
-    uppercase_check = data
-    uppercase_check['uppercase'] = list(
-    map(lambda x: x[0].isupper(), uppercase_check['description']))
-    
-    uppercase_check['needs_uppercase'] = np.where(uppercase_check['uppercase'] == False, "missing uppercase", "")
-    
-    uppercase_check.drop(['uppercase'], axis=1, inplace=True)
-    return uppercase_check
-    
-    
+      
 # def spellcheck(words):
 #     spell = SpellChecker()
 #     words_lst = list(words.split(" "))
@@ -273,6 +172,84 @@ def check_uppercase(data):
 #     print(data)
 #     return
 
+######### CHECKERS ###########
+
+def pull_incorrect_status(data):
+    """
+    get todays quarter
+    for each card
+        compare if cards year is past, same, or future year
+            if past: status = release
+            if future
+            if same or future: continue
+        
+        compare if card quarter
+    """
+    
+    cur_year = date.today().year
+    cur_month = date.today().month
+    
+    cur_year = 2022
+    cur_month = 12
+    
+    current_q = current_quarter()
+    status_check = data
+
+    status_check['year_check'] = list(
+    map(lambda x: compare_date(x), status_check['date']))
+    
+    status_check['status_issue'] = np.where(status_check['year_check'] != status_check['status'], "incorrect status", "")
+    
+    
+    report = status_check['param', 'status_issue', 'year_check']
+    
+    print("STATUS REPORT")
+    for col in report.columns:
+        print(col)
+    
+    return report
+
+def pull_learn_more(data):
+    
+    data['links'] = data['links'].astype(str)
+    contains_learn_more = data.loc[data['links'].str.contains('Learn more')]
+    contains_learn_more['error_learn'] = 'change learn more'
+    
+    return contains_learn_more
+
+def pull_arrow_error(data):
+    
+    data['links'] = data['links'].astype(str)
+    needs_arrow = data.loc[data['links'].str.contains('missing arrow')]
+    needs_arrow['error_arrow'] = 'missing arrow'
+    
+    return needs_arrow
+
+def check_fullstop(data):
+    
+    needs_fullstop = data
+    needs_fullstop['full_stop'] = list(
+    map( lambda x: x.endswith('.'), data['description']))
+    needs_fullstop = data.loc[data['full_stop'] == False]
+    needs_fullstop['missing_fullstop'] = np.where(needs_fullstop['full_stop'] == False, "missing fullstop", "")
+    needs_fullstop.drop(['full_stop'], axis=1, inplace=True)
+        
+    return needs_fullstop
+
+def check_uppercase(data):
+    
+    uppercase_check = data
+    uppercase_check['uppercase'] = list(
+    map(lambda x: x[0].isupper(), uppercase_check['description']))
+    
+    uppercase_check['needs_uppercase'] = np.where(uppercase_check['uppercase'] == False, "missing uppercase", "")
+    
+    uppercase_check.drop(['uppercase'], axis=1, inplace=True)
+            
+    return uppercase_check
+ 
+######### RUN IT ###########
+
 def analyze_scrape(csv_file, roadmap_type, enviro):
     """ 
     - identify 'learn more' links
@@ -281,37 +258,37 @@ def analyze_scrape(csv_file, roadmap_type, enviro):
     """
     data = pd.read_csv(csv_file)
     
-    pull_incorrect_status(data)
- 
-    contains_learn_more = pull_learn_more(data)
-    needs_arrow = pull_arrow_error(data)
-    full_stop = check_fullstop(data)
-    uppercase = check_uppercase(data)
-    # spell_check = check_spelling(data)
     
-    two_errors = pd.merge(incorrect_status_df, contains_learn_more, how='outer', on='param')
+    status_check = pull_incorrect_status(data)
+  
+    contains_learn_more = pull_learn_more(data)
+    
+    needs_arrow = pull_arrow_error(data)
+    
+    full_stop = check_fullstop(data)
+    
+    uppercase = check_uppercase(data)
+   
+    # spell_check = check_spelling(data)
+
+    
+    two_errors = pd.merge(status_check, contains_learn_more, how='outer', on='param')
     other_two_errors = pd.merge(needs_arrow, full_stop, how='outer', on='param')
     another_errors = pd.merge(other_two_errors, uppercase, how='outer', on='param')
     all_errors = pd.merge(two_errors, another_errors, how='outer', on='param')
 
-    print(all_errors)
 
-    only_errors = all_errors[['param', 'error_status', 'error_learn', 'error_arrow', 'missing_fullstop', 'needs_uppercase']]
-    # only_errors = only_errors.fillna('').sum(axis=1)
+        
+    only_errors = all_errors[['param', 'status_issue', 'error_learn', 'error_arrow', 'missing_fullstop', 'needs_uppercase']]
     
     only_errors["errors"] = only_errors['error_status'].astype(str) +", "+ only_errors["error_learn"].astype(str)
     only_errors["errors"] = only_errors['errors'].astype(str) +", "+ only_errors["error_arrow"].astype(str)
     only_errors["errors"] = only_errors['errors'].astype(str) +", "+ only_errors["missing_fullstop"].astype(str)
     only_errors["errors"] = only_errors['errors'].astype(str) +", "+ only_errors["needs_uppercase"].astype(str)
+    only_errors["errors"] = only_errors['errors'].astype(str) +", "+ only_errors["status_issue"].astype(str)
 
-    # only_errors["errors"] = only_errors["errors"].map(lambda x: str(x).lstrip('nan, ').rstrip("nan, "))
-    # only_errors["errors"] = only_errors["errors"].map(lambda x: str(x).rstrip(','))
     only_errors["errors"] = only_errors["errors"].str.replace(r'nan, ', '')
     only_errors["errors"] = only_errors["errors"].map(lambda x: str(x).rstrip(', '))
-    # only_errors["errors"] = only_errors["errors"].map(lambda x: str(x).lstrip(' nan,'))
-
-    
-    # print(all_errors)
     
     only_errors = only_errors[['param', 'errors']]
     
