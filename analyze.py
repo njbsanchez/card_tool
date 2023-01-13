@@ -269,6 +269,7 @@ def analyze_scrape(csv_file, roadmap_type, enviro):
     
     uppercase = check_uppercase(data)
    
+   
     # spell_check = check_spelling(data)
 
     
