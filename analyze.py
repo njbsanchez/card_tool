@@ -1,11 +1,10 @@
 import pandas as pd
 import numpy as np
 import time
-from datetime import datetime, date
-from fiscalyear import *
+from datetime import *
 import json
 import os
-from spellchecker import SpellChecker
+# from spellchecker import SpellChecker
 
 def create_report(df,type,enviro):
     
@@ -13,6 +12,9 @@ def create_report(df,type,enviro):
     now = datetime.now()
     
     path_name = f"~/Downloads/card_parser_tool/{today}/{enviro}"
+    
+    path_name = path_name.replace(" ", "_")
+    print(path_name)
     path = os.path.expanduser(path_name)
 
     isExist = os.path.exists(path)
@@ -23,8 +25,10 @@ def create_report(df,type,enviro):
         print("The new directory is created!")
 
     file_name = f'{type}_qa_checker_{now}.csv'
-    file = f'{path}/{file_name}'   
+    file = (f'{path}/{file_name}').replace(" ", "_")  
     df.to_csv(file, index=False, header=True)
+    
+    return file
 
 ######### DEFS ###########
 
@@ -201,11 +205,11 @@ def pull_incorrect_status(data):
     status_check['status_issue'] = np.where(status_check['year_check'] != status_check['status'], "incorrect status", "")
     
     
-    report = status_check['param', 'status_issue', 'year_check']
+    report = status_check[['param', 'status_issue', 'year_check']].copy()
     
-    print("STATUS REPORT")
-    for col in report.columns:
-        print(col)
+    # print("~~~~~~~~~~~STATUS REPORT")
+    # for col in report.columns:
+    #     # print(col)
     
     return report
 
@@ -215,7 +219,13 @@ def pull_learn_more(data):
     contains_learn_more = data.loc[data['links'].str.contains('Learn more')]
     contains_learn_more['error_learn'] = 'change learn more'
     
-    return contains_learn_more
+    report = contains_learn_more[['param', 'error_learn']].copy()
+    
+    # print("~~~~~~~~~~~LEARN MORE REPORT")
+    # for col in report.columns:
+    #     print(col)
+        
+    return report
 
 def pull_arrow_error(data):
     
@@ -223,7 +233,13 @@ def pull_arrow_error(data):
     needs_arrow = data.loc[data['links'].str.contains('missing arrow')]
     needs_arrow['error_arrow'] = 'missing arrow'
     
-    return needs_arrow
+    report = needs_arrow[['param', 'error_arrow']].copy()
+    
+    # print("~~~~~~~~~~~ARROW  REPORT")
+    # for col in report.columns:
+    #     print(col)
+        
+    return report
 
 def check_fullstop(data):
     
@@ -234,7 +250,13 @@ def check_fullstop(data):
     needs_fullstop['missing_fullstop'] = np.where(needs_fullstop['full_stop'] == False, "missing fullstop", "")
     needs_fullstop.drop(['full_stop'], axis=1, inplace=True)
         
-    return needs_fullstop
+    report = needs_fullstop[['param', 'missing_fullstop']].copy()
+    
+    # print("~~~~~~~~~~~FULLSTOP REPORT")
+    # for col in report.columns:
+    #     print(col)
+        
+    return report
 
 def check_uppercase(data):
     
@@ -245,19 +267,25 @@ def check_uppercase(data):
     uppercase_check['needs_uppercase'] = np.where(uppercase_check['uppercase'] == False, "missing uppercase", "")
     
     uppercase_check.drop(['uppercase'], axis=1, inplace=True)
-            
-    return uppercase_check
+    
+    report = uppercase_check[['param', 'needs_uppercase']].copy()
+    
+    # print("~~~~~~~~~~~UPPERCASE  REPORT")
+    # for col in report.columns:
+    #     print(col)
+        
+    return report
+
  
 ######### RUN IT ###########
 
-def analyze_scrape(csv_file, roadmap_type, enviro):
+def analyze_scrape(csv_file_path, roadmap_type, enviro):
     """ 
     - identify 'learn more' links
     - check if status is not correct
     - check if learn more link has no arrow
     """
-    data = pd.read_csv(csv_file)
-    
+    data = pd.read_csv(csv_file_path)
     
     status_check = pull_incorrect_status(data)
   
@@ -280,9 +308,9 @@ def analyze_scrape(csv_file, roadmap_type, enviro):
 
 
         
-    only_errors = all_errors[['param', 'status_issue', 'error_learn', 'error_arrow', 'missing_fullstop', 'needs_uppercase']]
+    only_errors = all_errors[['param', 'status_issue', 'error_learn', 'error_arrow', 'missing_fullstop', 'needs_uppercase']].copy()
     
-    only_errors["errors"] = only_errors['error_status'].astype(str) +", "+ only_errors["error_learn"].astype(str)
+    only_errors["errors"] = only_errors["error_learn"].astype(str)
     only_errors["errors"] = only_errors['errors'].astype(str) +", "+ only_errors["error_arrow"].astype(str)
     only_errors["errors"] = only_errors['errors'].astype(str) +", "+ only_errors["missing_fullstop"].astype(str)
     only_errors["errors"] = only_errors['errors'].astype(str) +", "+ only_errors["needs_uppercase"].astype(str)
@@ -290,19 +318,22 @@ def analyze_scrape(csv_file, roadmap_type, enviro):
 
     only_errors["errors"] = only_errors["errors"].str.replace(r'nan, ', '')
     only_errors["errors"] = only_errors["errors"].map(lambda x: str(x).rstrip(', '))
+    only_errors["errors"] = only_errors["errors"].map(lambda x: str(x).lstrip(', '))
     
-    only_errors = only_errors[['param', 'errors']]
+    only_errors = only_errors[['param', 'errors']].copy()
     
     all_data = pd.merge(data, only_errors, how='outer', on='param')
     
-    all_data.drop(['needs_uppercase', 'full_stop'], axis=1, inplace=True)
+    all_data.drop(['needs_uppercase', 'full_stop', 'year_check', 'status_issue'], axis=1, inplace=True)
 
 
 
-    create_report(all_data, roadmap_type, enviro)
+    file_name = create_report(all_data, roadmap_type, enviro)
 
     print("**********************--**************************")
     ""
+    
+    return file_name
 
 
 if __name__ == "__main__":

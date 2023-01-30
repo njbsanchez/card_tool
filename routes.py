@@ -25,6 +25,7 @@ def go_scrape():
         type = request.form['roadmap_type']
         rm.parse_roadmap(type, env)
         # return render_template('done.html', env, type)
+        return render_template('done.html', environment=env, type=type, filename=filename)
     
     return render_template('scraper.html', 
                            enviro=enviro, 
@@ -38,11 +39,11 @@ def go_qa():
     if request.method == "POST":
 
         path = request.form['path']
-        env = request.form['enviro']
+        enviroment = request.form['enviro']
         type = request.form['roadmap_type']
-        az.analyze_scrape(path, type, env)
+        filename = az.analyze_scrape(path, type, enviroment)
         
-        # return render_template('done.html', env, type)
+        return render_template('done.html', environment=enviro, type=type, filename=filename)
     
     return render_template('analyze.html', 
                            enviro=enviro, 

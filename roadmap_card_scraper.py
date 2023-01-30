@@ -169,6 +169,8 @@ def create_report(cards_dictionary, type, environment):
     df = (pd.DataFrame.from_dict(cards_dictionary)).T
     file = f'{path}/{file_name}.csv'
     df.to_csv (file, index = False, header=True)
+    
+    return file
   
   
 def parse_roadmap(roadmap_type, enviro, product_area="none"):
@@ -187,7 +189,9 @@ def parse_roadmap(roadmap_type, enviro, product_area="none"):
         
     cards_dictionary = get_data(url)
     
-    create_report(cards_dictionary, roadmap_type, enviro)
+    filename = create_report(cards_dictionary, roadmap_type, enviro)
+    
+    return filename
 
 def what_product_area(product_area):
     """ 
