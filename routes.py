@@ -23,7 +23,7 @@ def go_scrape():
         # print(request.form['roadmap_type'])
         env = request.form['enviro']
         type = request.form['roadmap_type']
-        rm.parse_roadmap(type, env)
+        filename = rm.parse_roadmap(type, env)
         # return render_template('done.html', env, type)
         return render_template('done.html', environment=env, type=type, filename=filename)
     
