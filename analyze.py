@@ -55,24 +55,9 @@ def fix_hyphen_dates(x, x_tup):
     
     return comp_q
 
-def convert_date_to_numberscale(x, cur_year, cur_month):
-    q = x[0].lstrip('Qa')
-    y = float(x[1])
-                
-    if float(y) != float(cur_year):
-        comp_q += (y-cur_year)
-        
-    if float(q) == 1:
-        comp_q += .0
-    elif float(q) == 2:
-        comp_q += .25
-    elif float(q) == 3:
-        comp_q += .50
-    elif float(q) == 4:
-        comp_q += .75
 
 def convert_date(x_tup):
-   
+
     cur_year = date.today().year
     cur_month = date.today().month
     
@@ -85,7 +70,12 @@ def convert_date(x_tup):
     
     elif len(x) > 1:
         q = x[0].lstrip('Qa')
-        y = float(x[1])
+        # print(x[1])
+        try:
+            y = float(x[1])
+            q = float(q)
+        except ValueError:
+            return "error"
                   
         if float(y) != float(cur_year):
             comp_q += (y-cur_year)
@@ -102,6 +92,7 @@ def convert_date(x_tup):
         return comp_q
 
     elif len(x) == 1:
+        
         if 'Q' in x[0]:
         
             comp_q = fix_hyphen_dates(x, x_tup)
@@ -121,8 +112,8 @@ def convert_date(x_tup):
     
 def compare_date(date):
 
-    date_comp = tuple(date.split(' - '))
-
+    date_comp = str(date).split(' - ')
+    date_comp = tuple(date_comp)
     card_num_scale = convert_date(date_comp)
     type(card_num_scale)
     this_q = 0.0
@@ -245,7 +236,7 @@ def check_fullstop(data):
     
     needs_fullstop = data
     needs_fullstop['full_stop'] = list(
-    map( lambda x: x.endswith('.'), data['description']))
+    map( lambda x: str(x).endswith('.'), data['description']))
     needs_fullstop = data.loc[data['full_stop'] == False]
     needs_fullstop['missing_fullstop'] = np.where(needs_fullstop['full_stop'] == False, "missing fullstop", "")
     needs_fullstop.drop(['full_stop'], axis=1, inplace=True)
@@ -262,7 +253,7 @@ def check_uppercase(data):
     
     uppercase_check = data
     uppercase_check['uppercase'] = list(
-    map(lambda x: x[0].isupper(), uppercase_check['description']))
+    map(lambda x: print(str(x).isupper()), uppercase_check['description']))
     
     uppercase_check['needs_uppercase'] = np.where(uppercase_check['uppercase'] == False, "missing uppercase", "")
     

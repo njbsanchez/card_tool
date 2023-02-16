@@ -7,6 +7,7 @@ import pandas as pd
 import time
 from datetime import datetime, date
 import os
+import requests
 
 
 from bs4 import BeautifulSoup
@@ -25,14 +26,23 @@ def parse_main_page(url):
     takes in url of page, returns page source
     """
     
-    driver.get(url)
-    item_link = driver.find_elements(By.CLASS_NAME, value="item-link")
-    cards_dictionary = {}
+    page = requests.get(url)
+    page.status_code
     
+    # driver.get(url)
+    # soup = BeautifulSoup(driver.page_source, 'lxml')
+    
+    soup = BeautifulSoup(page, 'lxml')
+    item_link = soup.find_all(class_="item-link")  
+    
+    
+    # driver.get(url)
+    # item_link = driver.find_elements(By.CLASS_NAME, value="item-link")
+    
+    cards_dictionary = {}
     counter = 0
     
     for link in item_link:
-        # 
         
         if link.is_displayed():
             driver.execute_script("arguments[0].click();", link)
@@ -62,8 +72,14 @@ def add_to_dictionary(cards_dictionary):
     for param in cards_dictionary.keys():
         
         url = cards_dictionary[param]['url']
-        driver.get(url)
-        soup = BeautifulSoup(driver.page_source, 'lxml')
+        page = requests.get(url)
+        page.status_code
+        
+        # driver.get(url)
+        # soup = BeautifulSoup(driver.page_source, 'lxml')
+        
+        soup = BeautifulSoup(page, 'lxml')
+        print(soup)
         content = soup.find_all(class_="modal-inner")  
 
         for i,card in enumerate(content,start=1):
