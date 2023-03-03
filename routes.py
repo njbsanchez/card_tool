@@ -4,6 +4,7 @@ from flask_wtf import form
 import time
 import datetime
 
+
 import roadmap_card_scraper as rm
 import analyze as az
 
@@ -11,10 +12,6 @@ import analyze as az
 @app.route("/", methods=['GET', 'POST'])
 def go_home():
     
-    return render_template('homepage.html')
-
-@app.route("/card-scraper", methods=['GET', 'POST'])
-def go_scrape():
     enviro = ['author', 'proof', 'truth', 'production']
     roadmap_type = ['data-center', 'cloud']
     
@@ -27,12 +24,6 @@ def go_scrape():
         # return render_template('done.html', env, type)
         return render_template('done.html', environment=env, type=type, filename=filename)
     
-    return render_template('scraper.html', 
-                           enviro=enviro, 
-                           roadmap_type=roadmap_type)
-
-@app.route("/card-qa", methods=['GET', 'POST'])
-def go_qa():
     enviro = ['author', 'proof', 'truth', 'production']
     roadmap_type = ['data-center', 'cloud']
     
@@ -43,10 +34,40 @@ def go_qa():
         type = request.form['roadmap_type']
         filename = az.analyze_scrape(path, type, enviroment)
         
-        return render_template('done.html', environment=enviro, type=type, filename=filename)
+        return redirect(url_for("go_qa", environment=enviro, type=type, filename=filename, **request.args))
     
-    return render_template('analyze.html', 
+    return render_template('homepage.html',
                            enviro=enviro, 
                            roadmap_type=roadmap_type)
+
+# @app.route("/card-scraper", methods=['GET', 'POST'])
+# def go_scrape():
+#     enviro = ['author', 'proof', 'truth', 'production']
+#     roadmap_type = ['data-center', 'cloud']
+    
+#     if request.method == "POST":
+#         # print(request.form['enviro'])
+#         # print(request.form['roadmap_type'])
+#         env = request.form['enviro']
+#         type = request.form['roadmap_type']
+#         filename = rm.parse_roadmap(type, env)
+#         # return render_template('done.html', env, type)
+#         return render_template('done.html', environment=env, type=type, filename=filename)
+    
+#     return render_template('scraper.html', 
+#                            enviro=enviro, 
+#                            roadmap_type=roadmap_type)
+
+@app.route("/card-qa/<enviro>/<path>/<roadmap_type>", methods=['GET', 'POST'])
+
+def go_qa(enviro, path, roadmap_type):
+
+    filename = az.analyze_scrape(path, type, enviro)
+    
+    return render_template('done.html')
+    
+    # return render_template('analyze.html', 
+    #                        enviro=enviro, 
+    #                        roadmap_type=roadmap_type)
 
 

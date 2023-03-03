@@ -1,25 +1,37 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
+
 import pandas as pd
 import time
 from datetime import datetime, date
 import os
 import requests
+import pygsheets
 
 
 from bs4 import BeautifulSoup
 import json
 
-options = Options()
-options.add_argument('--ignore-certificate-errors')
-options.add_argument('--incognito')
-options.add_argument('--headless')
+import os.path
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+# import gspread
+# from gspread_dataframe import set_with_dataframe
+# from google.oauth2.service_account import Credentials
+# from pydrive.auth import GoogleAuth
+# from pydrive.drive import GoogleDrive
 
+# scopes = ['https://www.googleapis.com/auth/spreadsheets',
+#           'https://www.googleapis.com/auth/drive']
+
+# credentials = Credentials.from_service_account_file('credentials', scopes=scopes)
+
+# gc = gspread.authorize(credentials)
+
+# gauth = GoogleAuth()
+# drive = GoogleDrive(gauth)
+
+# # open a google sheet
+# gs = gc.open_by_key(your_sheet_key)
+# # select a work sheet from its name
+# worksheet1 = gs.worksheet('Sheet1')
 
 def parse_main_page(url):
     """
@@ -230,3 +242,6 @@ def what_product_area(product_area):
         return link with....
     """
     return product_area
+
+if __name__ == "__main__":
+    parse_roadmap("cloud", "prod")
